@@ -19,7 +19,7 @@
                             (map (fn [goto] (->Predec goto (:vertex %2))))
                             (into %1))
                       (reduce #{} ps)
-                      (->Vertex s (M ds))
+                      (->Vertex s (reduce #(conj %1 (apply M %2)) #{} ds))
                       process)
                   (let [vs (filter #(= s (:symbol %)) (map :vertex ps)) a (pop a)]
                     (recur a (peek a)
@@ -31,8 +31,8 @@
                             S (reduce into (map :datas vs)))))]
     (process V)))
 
-;; NOTE on M: It must accept a list of lists of vertices as argument,
-;; and returns a set, such as (fn [L] #{})
+;; NOTE on M: It must accept a set and a list of vertices as arguments,
+;; and return a set. E.g. (fn do-nothing [ds vs] ds)
 
 (defn parse
   "Let states consume string with method. Returns the final vertex
@@ -47,18 +47,18 @@
 (defn parse-forest
   "Let states consumes string for building a parse forest."
   [states string]
-  (parse states set string))
+  (parse states list string))
 
 (defn draw-forest-as-sexp
   "Draw forest from vertex v as s-expression, where the or-nodes are
   represented as vectos."
   [v]
   (if (= :$ (:symbol v))
-    (->> v :predecs (map :vertex) (map draw-forest-as-sexp))
+    (->> v :predecs (map :vertex) (mapv draw-forest-as-sexp))
     (case (count (:datas v))
       0 (:symbol v)
       1 (conj (apply map draw-forest-as-sexp (:datas v)) (:symbol v))
-      (cons (:symbol v) (mapv #(map draw-forest-as-sexp %) (:datas v))))))
+      (mapv #(conj (map draw-forest-as-sexp %) (:symbol v)) (:datas v)))))
 
 (defn draw-forest-as-graph
   "todo"

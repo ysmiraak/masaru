@@ -18,17 +18,9 @@
     :$ #{(P 1)}
     :S #{3}}])
 
-(defn sum [L]
-  (letfn [(get-numbers [v]
-            (if (number? (:symbol v))
-              #{(:symbol v)}
-              (:datas v)))
-          (add-up [ns ns']
-            (set (for [n ns n' ns'] (+ n n'))))
-          (sum-up [vs]
-            (reduce add-up (map get-numbers vs)))]
-    (set (mapcat sum-up L))))
+(defn sum-into [vs]
+  (letfn [(get-numbers [v] (if (empty? (:datas v)) #{(:symbol v)} (:datas v)))
+          (sum-up [ns ns'] (set (for [n ns n' ns'] (+ n n'))))]
+    (reduce sum-up (map get-numbers vs))))
 
-(draw-forest-as-sexp (parse STATES set [1 1 1]))
-
-(parse STATES sum [1 1 1])
+(draw-forest-as-sexp (parse-forest STATES [1 1 1]))

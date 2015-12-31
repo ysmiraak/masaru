@@ -55,26 +55,4 @@
     :$ #{(P 2)}}])
 
 (draw-forest-as-sexp (parse-forest STATES "nvnpnpn"))
-((:S (:N \n)
-     (:V \v
-         (:N (:N \n)
-             (:P \p
-                 (:N ((:N (:N \n)
-                          (:P \p
-                              (:N \n)))
-                      (:P \p
-                          (:N \n)))
-                     ((:N \n)
-                      (:P \p
-                          (:N \n))))))))
- (:S (:N \n)
-     (:V ((:V \v (:N (:N \n) (:P \p (:N \n)))) (:P \p (:N \n)))
-         ((:V (:V \v (:N \n)) (:P \p (:N \n))) (:P \p (:N \n)))))
- (:S (:N \n)
-     (:V \v (:N ((:N (:N \n) (:P \p (:N \n))) (:P \p (:N \n)))
-                ((:N \n) (:P \p (:N \n))))))
- (:S (:N \n)
-     (:V (:V \v (:N \n))
-         (:P \p (:N ((:N (:N \n) (:P \p (:N \n)))
-                     (:P \p (:N \n)))
-                    ((:N \n) (:P \p (:N \n))))))))
+
