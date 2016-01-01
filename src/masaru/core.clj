@@ -1,55 +1,52 @@
 (ns masaru.core)
 
-(defrecord Vertex [symbol data? prevmap])
-
 (defn consume
   "Automaton A consumes symbol S at vertex V, disposing by D."
   ([A S V] (consume A S V nil))
   ([A S V D]
    (letfn [(process [s v]
-             (->> (dissoc v :res) keys
-                  (map #((A %) s))
-                  (reduce into)
-                  ;; returns the set of all possible actions at vertex v with symbol s
+             (->> (get-actions s v)
                   (map (partial act v))
                   join))
            
-           (get-predecs [v] (reduce into (vals (dissoc v :res))))
+           (join [ms] (case (count ms) 0 nil 1 (first ms)
+                            (apply merge-with into ms)))
+           
+           (stage [s v] (map #((A %) s) (keys (dissoc v :res))))
+           
+           (get-actions [s v] (reduce into (stage s v)))
+           (goto [s v] (reduce #(assoc %1 %2 #{v}) {} (stage s v)))
 
-           (act [v a]
-             ;; perform action a (either a number or a vector) at vertex v
-             (if (number? a) ; a number represents the state for a shift operation
-               {a #{v} :res (D S)}      ; a vector is a reduction rule
-               (loop [r (pop a) dvs [(list v)]]
-                 (if (= 1 (count r))
-                   (->> dvs
-                        (mapcat
-                         (fn [dv]
-                           (->> (first dv)
-                                get-predecs
-                                (map (fn [v]
-                                       (assoc
-                                        (->> (dissoc v :res) keys
-                                             (map #((A %) (peek r)))
-                                             (reduce #(assoc %1 %2 #{v}) {}))
-                                        :res (D (peek r) dv)))))))
-                        (map (partial process S))
-                        join
-                        ;; (map (fn [v]
-                        ;;        (let [as (->> (dissoc v :res) keys
-                        ;;                      (map #((A %) S))
-                        ;;                      (reduce into)
-                        ;;                      (filter vector?))]
-                        ;;          (if (empty? as)
-                        ;;            v
-                        ;;            (join (map (partial act v) as))))))
-                        )
-                   (recur (pop r)
-                          (for [dv dvs p (get-predecs (first dv))]
-                            (conj dv p)))))))
-           (join [ms] ; merge vertices creaed through all courses of actions
-             (case (count ms) 0 nil 1 (first ms)
-                   (apply merge-with into ms)))]
+           (get-prevs [vs] (reduce into (-> vs first (dissoc :res) vals)))
+           
+           (act [v a] (if (number? a)
+                        {a #{v} :res (D S)}
+                        (redus (list v) (pop a))))
+           
+           (redus [vs r]
+             (if (= 1 (count r))
+               (->> vs
+                    (redus' (peek r))
+                    (map (partial process S))
+                    join)
+               (let [ps (get-prevs vs)]
+                 (if (= 1 (count ps))
+                   (recur (conj vs (first ps)) (pop r))
+                   (join (for [p ps] (redus (conj vs p) (pop r))))))))
+           
+           (redus' [s vs]
+             (->> vs get-prevs
+                  (map #(assoc (goto s %) :res (D s vs)))
+                  ;; (map redus'')
+                  ;; join
+                  ))
+
+           (redus'' [v]
+             (let [as (->> (get-actions S v)
+                           (filter vector?))]
+               (if (empty? as)
+                 v
+                 (join (map (partial act v) as)))))]
      (process S V))))
 
 ;; NOTE on M: It must accept a list of vertices as arguments,

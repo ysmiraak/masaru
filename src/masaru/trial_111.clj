@@ -25,15 +25,27 @@
 
 ;; (draw-forest-as-sexp (parse-forest STATES [1 1 1]))
 
-;; (def consume' #(consume STATES %1 %2 (fn [dv] #{dv})))
-;; (def one1 (consume' 1 (->Vertex nil nil {0 #{}})))
-;; (def one2 (consume' 1 one1))
-;; (def one3 (consume' 1 one2))
+
+(defn as-sexp
+  ([s] [s])
+  ([s vs]
+   [(conj (map (fn [v] (if (= 1 (count v)) (first v) v)) (map :res vs)) s)]))
+
+(def consume' #(consume STATES %1 %2 as-sexp))
+(def one1 (consume' 1 {0 nil}))
+(def one2 (consume' 1 one1))
+(def one3 (consume' 1 one2))
+
 ;; (def one4 (consume' 1 one3))
 ;; (def one5 (consume' 1 one4))
 ;; (def one$ (consume' :$ one5))
 ;; (clojure.pprint/pprint one$)
 ;; (draw-forest-as-sexp one$)
 
-(parse-forest STATES [1 1])
+(parse-forest STATES [1 1 1 1])
 
+{0 #{{2 #{{0 nil}}, :res [(:S (:S (:S (:S 1) (:S 1)) (:S [1 1])) (:S [1 1 1 1 1]))]}
+     {2 #{{0 nil}}, :res [(:S (:S 1) (:S (:S 1) (:S (:S [1 1]) (:S [1 1 1 1 1]))))]}
+     {2 #{{0 nil}}, :res [(:S (:S (:S 1) (:S (:S 1) (:S [1 1]))) (:S [1 1 1 1 1]))]}
+     {2 #{{0 nil}}, :res [(:S (:S 1) (:S (:S (:S 1) (:S [1 1])) (:S [1 1 1 1 1])))]}
+     {2 #{{0 nil}}, :res [(:S (:S (:S 1) (:S 1)) (:S (:S [1 1]) (:S [1 1 1 1 1])))]}}, :res [:$ :$ :$ :$ :$]}

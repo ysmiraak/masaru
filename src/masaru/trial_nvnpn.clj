@@ -56,12 +56,8 @@
 
 (parse-forest STATES "nvnpnpn")
 
-
-[(:S (:N \n) (:V \v (:N (:N \n) (:P [\p \p] (:N (:N \n) (:P [\p \p \p \p] (:N \n)))))))]
-{1 #{{0 nil}}, :res [(:S (:N \n) (:V (:V \v (:N \n)) (:P [\p \p] (:N (:N \n) (:P [\p \p \p \p] (:N \n))))))]}
-
-{1 #{{0 nil}}, :res [(:S (:N \n) (:V (:V (:V \v (:N \n)) (:P [\p \p] (:N \n))) (:P [\p \p \p \p] (:N \n))))]}
-
-{1 #{{0 nil}}, :res [(:S (:N \n) (:V \v (:N (:N (:N \n) (:P [\p \p] (:N \n))) (:P [\p \p \p \p] (:N \n)))))]}
-
-{1 #{{0 nil}}, :res [(:S (:N \n) (:V (:V \v (:N (:N \n) (:P [\p \p] (:N \n)))) (:P [\p \p \p \p] (:N \n))))]}, :res [:$ :$ :$ :$ :$]
+{0 #{{1 #{{0 nil}}, :res [(:S (:N \n) (:V \v (:N (:N \n) (:P [\p \p] (:N (:N \n) (:P [\p \p \p \p] (:N \n)))))))]}
+     {1 #{{0 nil}}, :res [(:S (:N \n) (:V (:V \v (:N \n)) (:P [\p \p] (:N (:N \n) (:P [\p \p \p \p] (:N \n))))))]}
+     {1 #{{0 nil}}, :res [(:S (:N \n) (:V (:V (:V \v (:N \n)) (:P [\p \p] (:N \n))) (:P [\p \p \p \p] (:N \n))))]}
+     {1 #{{0 nil}}, :res [(:S (:N \n) (:V \v (:N (:N (:N \n) (:P [\p \p] (:N \n))) (:P [\p \p \p \p] (:N \n)))))]}
+     {1 #{{0 nil}}, :res [(:S (:N \n) (:V (:V \v (:N (:N \n) (:P [\p \p] (:N \n)))) (:P [\p \p \p \p] (:N \n))))]}}, :res [:$ :$ :$ :$ :$]}
