@@ -25,6 +25,7 @@ See doc string for details.
 
 * Automate grammar to SLR table conversion.
 * Test efficiency and change to parallel process.
+* Function for drawing parse forest in the dot language.
 
 ## License
 

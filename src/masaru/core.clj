@@ -80,15 +80,15 @@
                (rest string))))))
 
 (defn parse-for-result
-  "Let states consume string and returns the final result produced by
+  "Let states consume string and return the final result produced by
   disposition, or nil if parse fails."
   [states disposition string]
   (when-let [v (parse states disposition string)]
     (->> (v 0) (map meta) (map :res) (reduce into))))
 
 (defn parse-forest-as-sexp
-  "Let states consumes string for building a parse forest in
-  s-expression, where the or-nodes are represented as vectors."
+  "Returns the parse forest in s-expression, where the or-nodes are
+  represented as vectors."
   [states string]
   (letfn [(splice [v] (case (count v) 0 nil 1 (first v) v))
           (as-sexp ([s] [s])
@@ -96,6 +96,7 @@
     (splice (parse-for-result states as-sexp string))))
 
 (defn number-of-parses
+  "Return the number of different possible parses."
   [states string]
   (letfn [(nop ([s] [1])
             ([s vl] [(reduce * (map #(->> % meta :res (reduce +)) vl))]))]
