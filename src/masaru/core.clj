@@ -65,7 +65,7 @@
                             (conj (disj s v'))))))
                  (reduce s s')))
            (goto [s v] (reduce #(assoc %1 %2 #{v}) {} (stage s v)))
-           (stage [s v] (remove nil? (map #((A %) s) (keys v))))]
+           (stage [s v] (->> v keys (map #((A %) s)) (remove nil?)))]
      (process S V))))
 
 (defn parse
