@@ -54,10 +54,14 @@
    {\p #{(P 2)}
     :$ #{(P 2)}}])
 
-(draw-forest-as-sexp (parse-forest STATES "nvnpnpn"))
+(parse-forest STATES "nvnpnpn")
 
-[(:S (:N \n) (:V (:V \v (:N \n)) (:P \p (:N (:N \n) (:P \p (:N \n))))))
- (:S (:N \n) (:V \v (:N (:N \n) (:P \p (:N (:N \n) (:P \p (:N \n)))))))
- (:S (:N \n) (:V \v (:N (:N (:N \n) (:P \p (:N \n))) (:P \p (:N \n)))))
- (:S (:N \n) (:V (:V (:V \v (:N \n)) (:P \p (:N \n))) (:P \p (:N \n))))
- (:S (:N \n) (:V (:V \v (:N (:N \n) (:P \p (:N \n)))) (:P \p (:N \n))))]
+
+[(:S (:N \n) (:V \v (:N (:N \n) (:P [\p \p] (:N (:N \n) (:P [\p \p \p \p] (:N \n)))))))]
+{1 #{{0 nil}}, :res [(:S (:N \n) (:V (:V \v (:N \n)) (:P [\p \p] (:N (:N \n) (:P [\p \p \p \p] (:N \n))))))]}
+
+{1 #{{0 nil}}, :res [(:S (:N \n) (:V (:V (:V \v (:N \n)) (:P [\p \p] (:N \n))) (:P [\p \p \p \p] (:N \n))))]}
+
+{1 #{{0 nil}}, :res [(:S (:N \n) (:V \v (:N (:N (:N \n) (:P [\p \p] (:N \n))) (:P [\p \p \p \p] (:N \n)))))]}
+
+{1 #{{0 nil}}, :res [(:S (:N \n) (:V (:V \v (:N (:N \n) (:P [\p \p] (:N \n)))) (:P [\p \p \p \p] (:N \n))))]}, :res [:$ :$ :$ :$ :$]
