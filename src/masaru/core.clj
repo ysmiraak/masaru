@@ -1,5 +1,17 @@
 (ns masaru.core)
 
+(defn- fuse
+  "Returns the union of two sets of objects"
+  [ms ms']
+  (letfn [(join [ms m]
+            (let [m' (ms m)]
+              (if (nil? m')
+                (conj ms m)
+                (->> (merge-with into (meta m) (meta m'))
+                     (with-meta m)
+                     (conj (disj ms m'))))))]
+    (reduce join ms ms')))
+
 (defn consume
   "Automaton A consumes symbol S at vertex V, disposing by D.
 
@@ -17,53 +29,44 @@
 
   V is a map from states to sets of predecessor vertices. The starting
   pseudo-vertex for example can be {0 nil} or {0 #{}}. When a D is
-  supplied, the results of reductions are stored as metadata with :res
-  as the key.
+  supplied, the results of reductions are stored with key :res in the
+  vertex returned.
 
-  D must be (when supplied) a function that can take a terminal
-  symbol, or a non-terminal symbol and a list of vertices. The unary
-  case will be applied during shift operation, and the binary case
-  will be applied during reduction operation, when the list of
-  vertices are to be reduce to the non-terminal symbol. The return
-  value must be wrapped in a collection, so that when ambiguities
-  occur, the 'into function can be applied to these collections."
-  ([A S V] (consume A S V nil))
+  D must be a function that takes a terminal symbol, or a non-terminal
+  symbol and a list of vertices. The unary case will be applied during
+  shift operation, and the binary case will be applied during
+  reduction operation, when the list of vertices are to be reduce to
+  the non-terminal symbol. The return value must be wrapped in a
+  collection, so that when ambiguities occur, the 'into function can
+  be applied to these collections. When D is omitted, the result in a
+  vertex lists the symbol it represents and its children nodes (if
+  any) in the parse tree, which would prevent some reduced and useless
+  vertices from being garbage collected."
+  ([A S V] (consume A S V (fn [& args] args)))
   ([A S V D]
    (letfn [(process [s v]
              (->> (stage s v)
                   (reduce #(if (set? %2) (into %1 %2) (conj %1 %2)) #{})
-                  (map (partial act v))
-                  fuse))
+                  (mapcat (partial act v))))
            (act [v a]
              (if (number? a)
-               (if (nil? D) {a #{v}} ^{:res (D S)} {a #{v}})
-               (loop [a (pop a) vls [(list v)]]
-                 (if (= 1 (count a))
-                   (->> vls
-                        (mapcat (partial redus (peek a)))
-                        (map (partial process S))
-                        fuse)
-                   (recur (pop a)
-                          (for [vl vls p (->> vl first vals (reduce into))]
-                            (conj vl p)))))))
-           (redus [s vl]
-             (->> vl first vals
-                  (reduce into)
-                  (map (if (nil? D)
-                         #(goto s %)
-                         #(with-meta (goto s %) {:res (D s vl)})))))
-           (fuse [vs]
-             (apply merge-with (if (nil? D) into #(reduce join %1 %2)) vs))
-           (join [vs v]
-             (let [v' (vs v)]
-               (if (or (nil? v') (nil? D))
-                 (conj vs v)
-                 (->> (merge-with into (meta v) (meta v'))
-                      (with-meta v)
-                      (conj (disj vs v'))))))
-           (goto [s v] (reduce #(assoc %1 %2 #{v}) {} (stage s v)))
-           (stage [s v] (->> v keys (map #((A %) s)) (remove nil?)))]
-     (process S V))))
+               [{a #{v}}]
+               (redus (pop a) (list v))))
+           (redus [r vs]
+             (let [ps (->> vs first vals (reduce into))]
+               (if (= 1 (count r))
+                 (mapcat (partial goto (peek r) vs) ps)
+                 (if (= 1 (count ps))
+                   (recur (pop r) (conj vs (first ps)))
+                   (mapcat #(redus (pop r) (conj vs %)) ps)))))
+           (goto [s vs v]
+             (->> (stage s v)
+                  (reduce #(assoc %1 %2 #{v}) ^{:res (D s vs)} {})
+                  (process S)))
+           (stage [s v]
+             (->> v keys (map #((A %) s)) (remove nil?)))]
+     (when-let [v (apply merge-with fuse (process S V))]
+       (with-meta v {:res (D S)})))))
 
 (defn parse
   "Let states consume string by disposition. Returns the final vertex
@@ -86,7 +89,7 @@
 (defn parsable?
   "Whether any parse exists for the given string."
   [states string]
-  (if (parse states nil string) true false))
+  (if (parse states (fn [& args] nil) string) true false))
 
 (defn parse-forest-as-sexp
   "Returns the parse forest in s-expression, where the or-nodes are
@@ -94,12 +97,12 @@
   [states string]
   (letfn [(splice [v] (case (count v) 0 nil 1 (first v) v))
           (as-sexp ([s] [s])
-            ([s vl] [(conj (map #(-> % meta :res splice) vl) s)]))]
+            ([s vs] [(conj (map #(-> % meta :res splice) vs) s)]))]
     (splice (parse-for-result states as-sexp string))))
 
 (defn number-of-parses
   "Return the number of different possible parses."
   [states string]
   (letfn [(nop ([s] [1])
-            ([s vl] [(reduce * (map #(->> % meta :res (reduce +)) vl))]))]
+            ([s vs] [(reduce * (map #(->> % meta :res (reduce +)) vs))]))]
     (reduce + (parse-for-result states nop string))))

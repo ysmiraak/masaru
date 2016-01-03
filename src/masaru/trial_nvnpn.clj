@@ -62,30 +62,30 @@
 
 (number-of-parses STATES "nvnpn") ; 2
 (parse-forest-as-sexp STATES "nvnpn")
-;; [(:S (:N \n) (:V (:V \v (:N \n)) (:P \p (:N \n))))
-;;  (:S (:N \n) (:V \v (:N (:N \n) (:P \p (:N \n)))))]
+;; [(:S (:N \n) (:V \v (:N (:N \n) (:P \p (:N \n)))))
+;;  (:S (:N \n) (:V (:V \v (:N \n)) (:P \p (:N \n))))]
 
 (number-of-parses STATES "nvnpnpn") ; 5
 (parse-forest-as-sexp STATES "nvnpnpn")
-;; [(:S (:N \n) (:V (:V \v (:N \n)) (:P \p (:N (:N \n) (:P \p (:N \n))))))
+;; [(:S (:N \n) (:V [(:V \v (:N (:N \n) (:P \p (:N \n))))
+;;                   (:V (:V \v (:N \n)) (:P \p (:N \n)))] (:P \p (:N \n))))
 ;;  (:S (:N \n) (:V \v (:N (:N \n) (:P \p (:N (:N \n) (:P \p (:N \n)))))))
-;;  (:S (:N \n) (:V [(:V (:V \v (:N \n)) (:P \p (:N \n)))
-;;                   (:V \v (:N (:N \n) (:P \p (:N \n))))] (:P \p (:N \n))))
+;;  (:S (:N \n) (:V (:V \v (:N \n)) (:P \p (:N (:N \n) (:P \p (:N \n))))))
 ;;  (:S (:N \n) (:V \v (:N (:N (:N \n) (:P \p (:N \n))) (:P \p (:N \n)))))]
 
 (number-of-parses STATES "nvnpnpnpn") ; 14
 (parse-forest-as-sexp STATES "nvnpnpnpn")
-;; [(:S (:N \n) (:V (:V \v (:N \n)) (:P \p (:N (:N \n) (:P \p (:N (:N \n) (:P \p (:N \n))))))))
-;;  (:S (:N \n) (:V \v (:N (:N \n) (:P \p (:N (:N \n) (:P \p (:N (:N \n) (:P \p (:N \n)))))))))
-;;  (:S (:N \n) (:V [(:V (:V \v (:N \n)) (:P \p (:N \n)))
-;;                   (:V \v (:N (:N \n) (:P \p (:N \n))))] (:P \p (:N (:N \n) (:P \p (:N \n))))))
-;;  (:S (:N \n) (:V \v (:N (:N (:N \n) (:P \p (:N \n))) (:P \p (:N (:N \n) (:P \p (:N \n)))))))
+;; [(:S (:N \n) (:V \v (:N (:N \n) (:P \p (:N (:N (:N \n) (:P \p (:N \n))) (:P \p (:N \n)))))))
 ;;  (:S (:N \n) (:V (:V \v (:N \n)) (:P \p (:N (:N (:N \n) (:P \p (:N \n))) (:P \p (:N \n))))))
-;;  (:S (:N \n) (:V \v (:N (:N \n) (:P \p (:N (:N (:N \n) (:P \p (:N \n))) (:P \p (:N \n)))))))
-;;  (:S (:N \n) (:V [(:V (:V \v (:N \n)) (:P \p (:N (:N \n) (:P \p (:N \n)))))
-;;                   (:V \v (:N (:N \n) (:P \p (:N (:N \n) (:P \p (:N \n))))))
-;;                   (:V [(:V (:V \v (:N \n)) (:P \p (:N \n)))
-;;                        (:V \v (:N (:N \n) (:P \p (:N \n))))] (:P \p (:N \n)))
-;;                   (:V \v (:N (:N (:N \n) (:P \p (:N \n))) (:P \p (:N \n))))] (:P \p (:N \n))))
+;;  (:S (:N \n) (:V [(:V \v (:N (:N \n) (:P \p (:N \n))))
+;;                   (:V (:V \v (:N \n)) (:P \p (:N \n)))] (:P \p (:N (:N \n) (:P \p (:N \n))))))
+;;  (:S (:N \n) (:V \v (:N (:N \n) (:P \p (:N (:N \n) (:P \p (:N (:N \n) (:P \p (:N \n)))))))))
+;;  (:S (:N \n) (:V (:V \v (:N \n)) (:P \p (:N (:N \n) (:P \p (:N (:N \n) (:P \p (:N \n))))))))
+;;  (:S (:N \n) (:V \v (:N (:N (:N \n) (:P \p (:N \n))) (:P \p (:N (:N \n) (:P \p (:N \n)))))))
 ;;  (:S (:N \n) (:V \v (:N [(:N (:N \n) (:P \p (:N (:N \n) (:P \p (:N \n)))))
-;;                          (:N (:N (:N \n) (:P \p (:N \n))) (:P \p (:N \n)))] (:P \p (:N \n)))))]
+;;                          (:N (:N (:N \n) (:P \p (:N \n))) (:P \p (:N \n)))] (:P \p (:N \n)))))
+;;  (:S (:N \n) (:V [(:V [(:V \v (:N (:N \n) (:P \p (:N \n))))
+;;                        (:V (:V \v (:N \n)) (:P \p (:N \n)))] (:P \p (:N \n)))
+;;                   (:V \v (:N (:N \n) (:P \p (:N (:N \n) (:P \p (:N \n))))))
+;;                   (:V (:V \v (:N \n)) (:P \p (:N (:N \n) (:P \p (:N \n)))))
+;;                   (:V \v (:N (:N (:N \n) (:P \p (:N \n))) (:P \p (:N \n))))] (:P \p (:N \n))))]
