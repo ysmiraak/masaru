@@ -24,6 +24,8 @@
    (-> #(set (for [n %1 n' %2] (+ n n')))
        (reduce (map #(-> % meta :res) vl)))))
 
+(use 'masaru.core :reload-all)
+
 (parse-forest-as-sexp STATES [1 1 1])
 ;; [(:S (:S (:S 1) (:S 1)) (:S 1))
 ;;  (:S (:S 1) (:S (:S 1) (:S 1)))]
@@ -33,8 +35,7 @@
 (parse-for-result STATES sum-into [1 1 1])   ; #{3}
 (parse-for-result STATES sum-into [1 1 1 1]) ; #{4 5} ???
 
-
-(parse-forest-as-sexp STATES [1 1 1 1])      ; ???
+(parse-forest-as-sexp STATES [1 1 1 1]) ; ???
 ;; [(:S [(:S (:S (:S 1) (:S 1)) (:S 1))
 ;;       (:S (:S 1) (:S (:S 1) (:S 1)))] (:S 1))
 ;;  (:S (:S (:S 1) (:S 1)) (:S [(:S 1)

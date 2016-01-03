@@ -11,6 +11,7 @@ A Clojure library for the Tomita GLR parsing algorithm.
 * consume
 * parse
 * parse-for-result
+* parsable?
 * parse-forest-as-sexp
 * number-of-parses
 
@@ -23,6 +24,7 @@ See doc string for details.
 
 ### TODO ###
 
+* Problem fix: Works fine as a recognizer, but not so much as a parser.
 * Automate grammar to SLR table conversion.
 * Test efficiency and change to parallel process.
 * Function for drawing parse forest in the dot language.

@@ -54,6 +54,8 @@
    {\p (P 2)
     :$ (P 2)}])
 
+(use 'masaru.core :reload-all)
+
 (number-of-parses STATES "nvn") ; 1
 (parse-forest-as-sexp STATES "nvn")
 ;; (:S (:N \n) (:V \v (:N \n)))

@@ -33,7 +33,7 @@
              (->> (stage s v)
                   (reduce #(if (set? %2) (into %1 %2) (conj %1 %2)) #{})
                   (map (partial act v))
-                  join))
+                  fuse))
            (act [v a]
              (if (number? a)
                (if (nil? D) {a #{v}} ^{:res (D S)} {a #{v}})
@@ -42,7 +42,7 @@
                    (->> vls
                         (mapcat (partial redus (peek a)))
                         (map (partial process S))
-                        join)
+                        fuse)
                    (recur (pop a)
                           (for [vl vls p (->> vl first vals (reduce into))]
                             (conj vl p)))))))
@@ -52,18 +52,15 @@
                   (map (if (nil? D)
                          #(goto s %)
                          #(with-meta (goto s %) {:res (D s vl)})))))
-           (join [ms]
-             (case (count ms) 0 nil 1 (first ms)
-                   (apply merge-with (if (nil? D) into fuse) ms)))
-           (fuse [s s']
-             (-> (fn [s v]
-                   (let [v' (some #(when (= % v) %) s)]
-                     (if (nil? v')
-                       (conj s v)
-                       (->> (merge-with into (meta v) (meta v'))
-                            (with-meta v)
-                            (conj (disj s v'))))))
-                 (reduce s s')))
+           (fuse [vs]
+             (apply merge-with (if (nil? D) into #(reduce join %1 %2)) vs))
+           (join [vs v]
+             (let [v' (vs v)]
+               (if (or (nil? v') (nil? D))
+                 (conj vs v)
+                 (->> (merge-with into (meta v) (meta v'))
+                      (with-meta v)
+                      (conj (disj vs v'))))))
            (goto [s v] (reduce #(assoc %1 %2 #{v}) {} (stage s v)))
            (stage [s v] (->> v keys (map #((A %) s)) (remove nil?)))]
      (process S V))))
@@ -85,6 +82,11 @@
   [states disposition string]
   (when-let [v (parse states disposition string)]
     (->> (v 0) (map meta) (map :res) (reduce into))))
+
+(defn parsable?
+  "Whether any parse exists for the given string."
+  [states string]
+  (if (parse states nil string) true false))
 
 (defn parse-forest-as-sexp
   "Returns the parse forest in s-expression, where the or-nodes are
