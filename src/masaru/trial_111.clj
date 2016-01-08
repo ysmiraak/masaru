@@ -31,39 +31,12 @@
 ;; (0 1 1 2 5 14 42 132 429 1430 4862)
 
 (parse-forest-as-sexp STATES [1 1 1])
-;; [(:S (:S (:S 1) (:S 1)) (:S 1))
-;;  (:S (:S 1) (:S (:S 1) (:S 1)))]
+;; [(:S (:S 1) (:S (:S 1) (:S 1)))
+;;  (:S (:S (:S 1) (:S 1)) (:S 1))]
 
 (parse-forest-as-sexp STATES [1 1 1 1])
-
-[(:S (:S 1) (:S (:S 1) (:S (:S 1) (:S 1))))
- (:S (:S (:S 1) (:S 1)) (:S [(:S 1)
-                             (:S (:S 1) (:S 1))] (:S 1)))
- (:S [(:S (:S (:S 1) (:S 1)) (:S 1))
-      (:S (:S 1) (:S (:S 1) (:S 1)))] (:S 1))]
-
-;; [(:S (:S 1) (:S (:S 1) (:S (:S 1) (:S 1))))
-;;  (:S (:S (:S 1) (:S 1)) (:S (:S 1) (:S 1)))
+;; [(:S (:S 1) (:S (:S (:S 1) (:S 1)) (:S 1)))
 ;;  (:S [(:S (:S (:S 1) (:S 1)) (:S 1))
 ;;       (:S (:S 1) (:S (:S 1) (:S 1)))] (:S 1))
-;;  (:S (:S 1) (:S (:S (:S 1) (:S 1)) (:S 1)))]
-
-(time (number-of-parses STATES (repeat 11 1)))
-
-
-
-(use 'masaru.core :reload-all)
-(parse-for-result STATES sum-into [1 1 1 1])
-
-(consume STATES 1 (consume STATES 1 (consume STATES 1 {0 nil})))
-{1 #{{3 {2 {0 nil}}}
-     {2 {0 nil}}}} ; correct
-(consume STATES 1 (consume STATES 1 (consume STATES 1 (consume STATES 1 {0 nil}))))
-{1 #{{3 {3 {2 {0 nil}}}} ; incorrect
-     {3 {2 {0 nil}}}
-     {2 {0 nil}}}}
-(consume STATES 1 (consume STATES 1 (consume STATES 1 (consume STATES 1 (consume STATES 1 {0 nil})))))
-{1 #{{3 {3 {2 {0 nil}}}} ; incorrect
-     {3 {3 {3 {2 {0 nil}}}}} ; incorrect
-     {3 {2 {0 nil}}} ; incorrect
-     {2 {0 nil}}}}
+;;  (:S (:S 1) (:S (:S 1) (:S (:S 1) (:S 1))))
+;;  (:S (:S (:S 1) (:S 1)) (:S (:S 1) (:S 1)))]
