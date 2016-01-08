@@ -43,7 +43,7 @@
 
   V is a map from state numbers to predecessor vertices or sets of
   predecessors. The starting pseudo-vertex can be {0 nil}. The results
-x  of reductions produced by D are stored with key :res in the metadata
+  of reductions produced by D are stored with key :res in the metadata
   of the vertices.
 
   D must be a function that takes a terminal symbol, or a non-terminal
