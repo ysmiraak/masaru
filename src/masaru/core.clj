@@ -1,25 +1,29 @@
 (ns masaru.core)
 
-(defn- fuse
-  [ms ms']
-  (letfn [(join [ms m]
-            (let [m' (ms m)]
-              (if (nil? m')
-                (conj ms m)
-                (->> (update (meta m) :res into (:res (meta m')))
-                     (with-meta m)
-                     (conj (disj ms m'))))))]
-    (reduce join ms ms')))
+(defn- collect
+  "Collects all the entities in args into collection in. Each form in
+  args can either be a single entity or a set of entities."
+  [in & args]
+  (reduce #((if (set? %2) into conj) %1 %2) in args))
 
-(defn- fuse'
-  [ms ms']
-  (letfn [(join [ms m]
-            (let [m' (some #(when (= (dissoc % :res) (dissoc m :res)) %) ms)]
-              (if (nil? m')
-                (conj ms m)
-                (conj (disj ms m')
-                      (update m :res into (:res m'))))))]
-    (reduce join ms ms')))
+(defn- fuse
+  "Adds the state-vertex pair [a p] (a predecessor) to the current
+  vertex v aka the Tomita stack top."
+  [v [a p]]
+  (letfn [(up-meta [v v']
+            (->> v' meta :res
+                 (update (meta v) :res into)
+                 (with-meta v)))
+          (join [vs v]
+            (let [v' (vs v)]
+              (if (nil? v')        (conj vs v)
+                  (-> vs (disj v') (conj (up-meta v v'))))))
+          (merge-or-group [v v']
+            (if (= v v') (up-meta v v') #{v v'}))]
+    (condp #(%1 %2) (v a)
+      nil? (assoc v a p)
+      set? (update v a join p)
+      (update v a merge-or-group p))))
 
 (defn consume
   "Automaton A consumes symbol S at vertex V, disposing by D.
@@ -35,10 +39,10 @@
   returned represents S, and can be used as V in the next application.
   If S cannot be parsed, then nil is returned.
 
-  V is a map from state numbers to sets of predecessor vertices. The
-  starting pseudo-vertex for example can be {0 nil} or {0 #{}}. The
-  results of reductions produced by D are stored with key :res in the
-  metadata of the vertices.
+  V is a map from state numbers to predecessor vertices or sets of
+  predecessors. The starting pseudo-vertex can be {0 nil}. The results
+  of reductions produced by D are stored with key :res in the metadata
+  of the vertices.
 
   D must be a function that takes a terminal symbol, or a non-terminal
   symbol and a list of vertices. The unary case will be applied during
@@ -52,36 +56,29 @@
   vertices from being garbage collected."
   ([A S V] (consume A S V (fn ([s] [s]) ([s vs] [(conj vs s)]))))
   ([A S V D]
-   (letfn [(process [v]
-             (->> (stage S v)
-                  (reduce #(if (set? %2) (into %1 %2) (conj %1 %2)) #{})
-                  (mapcat (partial act v))))
+   (letfn [(process [v] (map (partial act v) (stage S v)))
            (act [v a]
              (if (number? a)
-               [{a #{v}}]
+               [a v]
                (redus (pop a) (list v))))
            (redus [r vs]
-             (let [ps (->> vs first vals (reduce into)
-                           (filter map?) ;; fix
-                           )]
+             (let [ps (->> vs first vals (apply collect []))]
                (condp = 1
-                 (count r) (mapcat (partial goto (peek r) vs) ps)
+                 (count r) (map (partial goto (peek r) vs) ps)
                  (count ps) (recur (pop r) (apply conj vs ps))
-                 (mapcat #(redus (pop r) (conj vs %)) ps))))
-           (goto [s vs v]
-             (as-> (stage s v) $
-               (interleave $ (repeat #{v}))
+                 (map #(redus (pop r) (conj vs %)) ps))))
+           (goto [s vs p]
+             (as-> (stage s p) $
+               (interleave $ (repeat p))
                (apply hash-map $)
-               ;; (with-meta $ {:res (D s vs)})
-               (assoc $ :res (D s vs)) ; fix
+               (with-meta $ {:res (D s vs)}) ; this step is wrong
                (process $)))
            (stage [s v]
-             (->> (dissoc v :res) ; fix
-                  keys (map #((A %) s)) (remove nil?)))]
-     (when-let [v (apply merge-with fuse' (process V))]
-       ;; (with-meta v {:res (D S)})
-       (assoc v :res (D S)) ; fix
-       ))))
+             (->> v keys ; replace by transducer
+                  (map #((A %) s)) (remove nil?) (apply collect #{})))]
+     (let [vs (flatten (process V))
+           xf (comp (remove nil?) (partition-all 2))]
+       (transduce xf (completing fuse) ^{:res (D S)} {} vs)))))
 
 (defn parse
   "Let states consume string and dispose. Returns the final vertex
@@ -89,7 +86,7 @@
   represents the start symbol :S. Returns nil if no parse found."
   [states dispose string]
   (loop [v {0 nil} string string]
-    (when-not (nil? v)
+    (when-not (empty? v)
       (if (empty? string)
         (consume states :$ v dispose)
         (recur (consume states (first string) v dispose)
@@ -100,10 +97,7 @@
   nil if parse fails."
   [states dispose string]
   (when-let [v (parse states dispose string)]
-    (->> 0 v
-         ;; (apply meta) :res
-         (apply :res) ; fix
-         )))
+    (-> 0 v meta :res)))
 
 (defn parsable?
   "Whether any parse exists for the given string."
@@ -120,7 +114,7 @@
     (splice (parse-for-result states as-sexp string))))
 
 (defn number-of-parses
-  "Return the number of different possible parses."
+  "Returns the number of different possible parses."
   [states string]
   (letfn [(nop ([s] [1])
             ([s vs] [(reduce * (map #(->> % meta :res (reduce +)) vs))]))]

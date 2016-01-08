@@ -21,13 +21,8 @@
 (defn sum-into
   ([s] #{s})
   ([s vs]
-   (->> vs
-        ;; (map meta) ; fix
-        (map :res)
+   (->> vs (map meta) (map :res)
         (reduce #(set (for [n %1 n' %2] (+ n n')))))))
-
-(use 'masaru.core :reload-all)
-(parse-for-result STATES sum-into [1 1 1 1])
 
 (map #(parse-for-result STATES sum-into (repeat % 1)) (range 11))
 ;; (nil #{1} #{2} #{3} #{4} #{5} #{6} #{7} #{8} #{9} #{10})
@@ -40,6 +35,13 @@
 ;;  (:S (:S 1) (:S (:S 1) (:S 1)))]
 
 (parse-forest-as-sexp STATES [1 1 1 1])
+
+[(:S (:S 1) (:S (:S 1) (:S (:S 1) (:S 1))))
+ (:S (:S (:S 1) (:S 1)) (:S [(:S 1)
+                             (:S (:S 1) (:S 1))] (:S 1)))
+ (:S [(:S (:S (:S 1) (:S 1)) (:S 1))
+      (:S (:S 1) (:S (:S 1) (:S 1)))] (:S 1))]
+
 ;; [(:S (:S 1) (:S (:S 1) (:S (:S 1) (:S 1))))
 ;;  (:S (:S (:S 1) (:S 1)) (:S (:S 1) (:S 1)))
 ;;  (:S [(:S (:S (:S 1) (:S 1)) (:S 1))
@@ -47,3 +49,21 @@
 ;;  (:S (:S 1) (:S (:S (:S 1) (:S 1)) (:S 1)))]
 
 (time (number-of-parses STATES (repeat 11 1)))
+
+
+
+(use 'masaru.core :reload-all)
+(parse-for-result STATES sum-into [1 1 1 1])
+
+(consume STATES 1 (consume STATES 1 (consume STATES 1 {0 nil})))
+{1 #{{3 {2 {0 nil}}}
+     {2 {0 nil}}}} ; correct
+(consume STATES 1 (consume STATES 1 (consume STATES 1 (consume STATES 1 {0 nil}))))
+{1 #{{3 {3 {2 {0 nil}}}} ; incorrect
+     {3 {2 {0 nil}}}
+     {2 {0 nil}}}}
+(consume STATES 1 (consume STATES 1 (consume STATES 1 (consume STATES 1 (consume STATES 1 {0 nil})))))
+{1 #{{3 {3 {2 {0 nil}}}} ; incorrect
+     {3 {3 {3 {2 {0 nil}}}}} ; incorrect
+     {3 {2 {0 nil}}} ; incorrect
+     {2 {0 nil}}}}
