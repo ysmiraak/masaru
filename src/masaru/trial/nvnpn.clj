@@ -1,4 +1,4 @@
-(ns masaru.trial-nvnpn
+(ns masaru.trial.nvnpn
   (:use masaru.core))
 
 (def P

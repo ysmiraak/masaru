@@ -24,8 +24,8 @@
           (merge-meta [v v']
             (->> v' meta :res
                  (update (meta v) :res into)
-                 (with-meta v)))])
-  (reduce fuse ^{:res result} {} state-vertex-pairs))
+                 (with-meta v)))]
+    (reduce fuse ^{:res result} {} state-vertex-pairs)))
 
 (defn consume
   "Automaton A consumes symbol S at vertex V, disposing by D.

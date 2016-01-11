@@ -15,12 +15,15 @@ A Clojure library for the Tomita GLR parsing algorithm.
 * parse-forest-as-sexp
 * number-of-parses
 
-See doc string for details.
+See doc strings for usage details.
 
-### Use examples ###
+### Usage examples ###
 
-* masaru.trial-nvnpn
-* masaru.trial-111
+* nvnpn
+* 111
+* pars
+
+In masaru.trials.
 
 ### TODO ###
 

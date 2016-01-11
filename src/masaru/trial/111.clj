@@ -1,4 +1,4 @@
-(ns masaru.trial-111
+(ns masaru.trial.111
   (:use masaru.core))
 
 (def P
