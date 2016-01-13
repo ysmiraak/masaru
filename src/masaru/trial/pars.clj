@@ -3,70 +3,51 @@
 
 (def P
   [ 0
-   [:S \( \)]
-   [:S :S \( \)]
-   [:S \( :S \)]
-   [:S \( \) :S]
-   [:S :S :S]])
+   [:S]
+   [:S \( :S \) :S]])
 
 (def STATES
-  {0 {\( 3
-      :S 1}
-   1 {\( 4
-      :$ (P 0)
-      :S 2}
-   2 {\( #{4 (P 5)}
-      \) (P 5)
-      :$ (P 5)
-      :S 2}
-   3 {\( 3
-      \) 6
-      :S 5}
-   4 {\( 3
-      \) 7
-      :S 5}
-   5 {\( 4
-      \) 9
-      :S 2}
-   6 {\( #{3 (P 1)}
+  {0 {\( 2
       \) (P 1)
       :$ (P 1)
-      :S 8}
-   7 {\( #{3 (P 1) (P 2)}
-      \) #{(P 1) (P 2)}
-      :$ #{(P 1) (P 2)}
-      :S 8}
-   8 {\( #{4 (P 4)}
-      \) (P 4)
-      :$ (P 4)
-      :S 2}
-   9 {\( (P 3)
-      \) (P 3)
-      :$ (P 3)}})
+      :S 1}
+   1 {:$ (P 0)}
+   2 {\( 2
+      \) (P 1)
+      :$ (P 1)
+      :S 3}
+   3 {\) 4}
+   4 {\( 2
+      \) (P 1)
+      :$ (P 1)
+      :S 5}
+   5 {\) (P 2)
+      :$ (P 2)}})
 
-(defn par [n]
-  (letfn [(insert [v i] (into (into (subvec v 0 i) [\( \)]) (subvec v i)))
-          (insertall [v] (for [i (range (inc (count v)))] (insert v i)))]
-    (->> (loop [i 0 v [[]]]
-           (if (= i n) v
-               (recur (inc i) (set (mapcat insertall v)))))
-         (map #(apply str %)))))
+(defn pairs
+  "Generates all possible matchings of n pairs of parentheses."
+  [n]
+  (if (zero? n)
+    [""]
+    (for [m (range n)
+          p (pairs m)
+          q (pairs (dec (- n m)))]
+      (str \( p \) q))))
 
-(filter false? (map (partial parsable? STATES) (par 8))) ; ()
+(map #(count (pairs %)) (range 11))
+;; (1 1 2 5 14 42 132 429 1430 4862 16796)
+;; https://en.wikipedia.org/wiki/Catalan_number
 
-(map #(number-of-parses STATES %) (par 3))
-;; (6 60 2 2 1) ??????
+(-> (partial number-of-parses STATES)
+    (map (pairs 8))
+    set)                                ; #{1}
 
-(parse-forest-as-sexp STATES "()()")
-;; [(:S (:S \( \)) \( \))
-;;  (:S (:S \( \)) \( \))
-;;  (:S (:S \( \)) (:S \( \)))
-;;  (:S (:S \( \)) (:S \( \)))
-;;  (:S \( \) (:S \( \)))
-;;  (:S \( \) (:S \( \)))] ??????
+(defn count-pairs
+  ([s] 1/2)
+  ([s vs]
+   (if (empty? vs) 0      ; this is when the ϵ-rule (P 1) gets applied
+       (transduce (comp (map meta) (map :res)) + vs))))
 
-
-
-;; TODO:
-;; 1. fix the problem
-;; 2. function for counting matching pars
+(map (partial parse-for-result STATES count-pairs)
+     (map #(apply str (repeat % "()")) (range 11)))
+;; (0 1N 2N 3N 4N 5N 6N 7N 8N 9N 10N)

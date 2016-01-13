@@ -20,8 +20,8 @@ See doc strings for usage details.
 ### Usage examples ###
 
 * nvnpn
-* 111
 * pars
+* 111
 
 In masaru.trials.
 

@@ -50,12 +50,14 @@
   symbol and a list of vertices. The unary case will be applied during
   shift operation, and the binary case will be applied during reduce
   operation, when the list of vertices are to be reduce to a vertex
-  representing the non-terminal symbol. The return value must be
-  wrapped in a collection, so that when ambiguities occur, the 'into
-  function can be applied to these collections. When D is omitted, the
-  result in a vertex lists the symbol it represents and its children
-  nodes (if any) in the parse tree, which would prevent some reduced
-  and useless vertices from being garbage collected."
+  representing the non-terminal symbol. (With ϵ-rules, the list is
+  simply empty.) The return value should be wrapped in a collection,
+  so that when ambiguities occur, the 'into function can be applied to
+  these collections. (With an unambiguous grammar, no wrapping is
+  required.)  When D is omitted, the result in a vertex lists the
+  symbol it represents and its children nodes (if any) in the parse
+  tree, which would prevent some reduced and useless vertices from
+  being garbage collected."
   ([A S V] (consume A S V (fn ([s] [s]) ([s vs] [(conj vs s)]))))
   ([A S V D]
    (letfn [(process [v] (mapcat (partial act v) (stage S v)))
@@ -63,16 +65,21 @@
              (transduce (comp (map #((A %) s)) (remove nil?))
                         (completing collect) #{} (keys v)))
            (act [v a]
-             (if (number? a)      [[a v]]
-                 (redus (pop a) (list v))))
+             (if (number? a)
+               [[a v]]
+               (if (= 1 (count a))
+                 (goto [v] (peek a) [])
+                 (redus (pop a) (list v)))))
            (redus [r vs]
              (let [ps (->> vs first vals (reduce collect []))]
                (condp = 1
-                 (count r) (-> (for [p ps g (stage (peek r) p)] [g p])
-                               (converge (D (peek r) vs))
-                               process)
+                 (count r)  (goto ps (peek r) vs)
                  (count ps) (recur (pop r) (apply conj vs ps))
-                 (mapcat   #(redus (pop r) (conj vs %)) ps))))]
+                 (mapcat   #(redus (pop r) (conj vs %)) ps))))
+           (goto [ps s vs]
+             (-> (for [p ps g (stage s p)] [g p])
+                 (converge (D s vs))
+                 process))]
      (-> V process (converge (D S))))))
 
 (defn parse
