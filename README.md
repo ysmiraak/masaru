@@ -23,7 +23,7 @@ See doc strings for usage details.
 * pars
 * 111
 
-In masaru.trials.
+In masaru.trial.
 
 ### TODO ###
 
