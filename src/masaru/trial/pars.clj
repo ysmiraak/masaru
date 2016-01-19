@@ -91,6 +91,10 @@
                q (pairs*3 (dec (- n m)))])
          (apply concat))))
 
+(map #(count ((memoize pairs*3) %)) (range 8))
+;; (1 3 18 135 1134 10206 96228 938223)
+;; https://oeis.org/
+
 (def STATES*3
   (let [P {1 [:S]
            2 [:S :S \( :S \)]
@@ -101,19 +105,15 @@
         all-reduce-by-rule (fn [n] (reduce #(assoc %1 %2 (P n)) {} V))
         epsilon-r (all-reduce-by-rule 1)]
     [(assoc epsilon-r :S 10)
-     (assoc epsilon-r :S 7)
-     (assoc epsilon-r :S 8)
      (assoc epsilon-r :S 9)
-     (all-reduce-by-rule 2)
-     (all-reduce-by-rule 3)
+     (assoc epsilon-r :S 8)
+     (assoc epsilon-r :S 7)
      (all-reduce-by-rule 4)
-     (assoc opening-s \) 4)
+     (all-reduce-by-rule 3)
+     (all-reduce-by-rule 2)
+     (assoc opening-s \} 4)
      (assoc opening-s \] 5)
-     (assoc opening-s \} 6)
+     (assoc opening-s \) 6)
      (assoc opening-s :$ 0)]))
-
-(map #(count (pairs*3 %)) (range 8))
-;; (1 3 18 135 1134 10206 96228 938223)
-;; https://oeis.org/
 
 ;; TODO: function for counting different kinds of brackets
