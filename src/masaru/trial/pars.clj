@@ -122,8 +122,8 @@
      (assoc opening-s \) 6)
      (assoc opening-s :$ 0)]))
 
-(clojure.pprint/pprint (map (partial parse-for-result STATES*3 count-pairs)
-     (pairs*3 3)))
+(map (partial parse-for-result STATES*3 count-pairs)
+     (pairs*3 3))
 ;; ({\( 3, \) 3}
 ;;  {\[ 1, \( 2, \) 2, \] 1}
 ;;  {\{ 1, \( 2, \) 2, \} 1}
