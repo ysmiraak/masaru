@@ -1,5 +1,5 @@
 (ns masaru.trial.111
-  (:use masaru.core))
+  (:require [masaru.core :refer :all]))
 
 (def P
   [ 0

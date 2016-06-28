@@ -9,7 +9,7 @@
   "A number of state-vertex pairs converge as one vertex with result."
   [state-vertex-pairs result]
   (letfn [(fuse [v [a p]]
-            (condp #(%1 %2) (v a)
+            (condp apply [(v a)]
               nil? (assoc v a p)
               set? (update v a join p)
               (update v a merge-or-group p)))
@@ -31,20 +31,20 @@
   "Automaton A consumes symbol S at vertex V, disposing by D.
 
   A must function this way: ((A state-number) symbol) => operation,
-  where the operation is a single number (goto state) with a
+  where the operation is a single number (the goto state) with a
   non-terminal symbol, and with a terminal symbol, the operation can
-  be either a number (shift state), or a vector (reduction rule), or a
-  set of these things (specifically, a set of any number of reduction
-  rules but at most one shift state).
+  be either a number (the shift state), or a vector (the reduction
+  rule), or a set of these things (specifically, a set of any number
+  of reduction rules but at most one shift state).
 
   S is a terminal symbol. When it is successfully consumed, the vertex
   returned represents S, and can be used as V in the next application.
   If S cannot be parsed, then an empty vertex is returned.
 
-  V is a map from state numbers to predecessor vertices or sets of
-  predecessors. The starting pseudo-vertex can be {0 nil}. The results
-  of reductions produced by D are stored with key :res in the metadata
-  of the vertices.
+  V is a hash-map from state numbers to predecessor vertices or sets
+  of predecessors. The starting pseudo-vertex can be {0 nil}. The
+  results of reductions produced by D are stored with key :res in the
+  metadata of the vertices.
 
   D must be a function that takes a terminal symbol, or a non-terminal
   symbol and a list of vertices. The unary case will be applied during
@@ -87,12 +87,11 @@
   representing the end symbol :$, whose predecessor at state 0
   represents the start symbol :S. Returns nil if no parse found."
   [states dispose string]
-  (loop [v {0 nil} string string]
-    (when-not (empty? v)
-      (if (empty? string)
-        (consume states :$ v dispose)
-        (recur (consume states (first string) v dispose)
-               (rest string))))))
+  (let [f (fn [v s]
+            (if (empty? v) (reduced nil)
+                (consume states s v dispose)))
+        v (reduce f {0 nil} string)]
+    (when v (consume states :$ v dispose))))
 
 (defn parse-for-result
   "Let states consume string and dispose. Returns the final result, or
@@ -104,7 +103,7 @@
 (defn parsable?
   "Whether any parse exists for the given string."
   [states string]
-  ((complement empty?) (parse states (fn [& args] nil) string)))
+  (false? (empty? (parse states (constantly nil) string))))
 
 (defn parse-forest-as-sexp
   "Returns the parse forest in s-expression, where the or-nodes are

@@ -6,35 +6,34 @@ A Clojure library for the Tomita GLR parsing algorithm.
 
 ### Main functions ###
 
-#### masaru.core ####
+In `masaru.core`:
 
-* consume
-* parse
-* parse-for-result
-* parsable?
-* parse-forest-as-sexp
-* number-of-parses
+* `consume`
+* `parse`
+* `parse-for-result`
+* `parsable?`
+* `parse-forest-as-sexp`
+* `number-of-parses`
 
 See doc strings for usage details.
 
 ### Usage examples ###
 
-* nvnpn
-* pars
-* 111
+In `masaru.trial`:
 
-In masaru.trial.
+* `nvnpn`
+* `pars`
+* `111`
 
 ### TODO ###
 
-* Automate grammar to SLR table conversion.
+* Automate CF grammar to SLR table conversion.
 * Test efficiency and change to parallel process.
 * Function for drawing parse forest in the dot language.
 
 ## License
 
-Copyright &copy; 2015 Ysmiraak
+Copyright © 2016 Ysmiraak
 
-This project is licensed under the [Eclipse Public License 1.0][license].
-
-[license]: http://www.eclipse.org/legal/epl-v10.html
+Distributed under the Eclipse Public License either version 1.0 or (at
+your option) any later version.

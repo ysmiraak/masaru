@@ -1,5 +1,5 @@
 (ns masaru.trial.nvnpn
-  (:use masaru.core))
+  (:require [masaru.core :refer :all]))
 
 (def P
   [ 0         ; accept

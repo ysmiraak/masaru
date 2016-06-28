@@ -1,5 +1,5 @@
 (ns masaru.trial.pars
-  (:use masaru.core))
+  (:require [masaru.core :refer :all]))
 
 (def STATES
   (let [P [0
@@ -69,17 +69,17 @@
   higher collection."
   ([s] {s 1})
   ([s vs]
-   (if (empty? vs) nil    ; this is when the ϵ-rule (P 1) gets applied
-       (transduce (comp (map meta) (map :res))
-                  (partial merge-with +) vs))))
+   (when (seq vs) ;; otherwise the ϵ-rule (P 1) gets applied
+     (transduce (comp (map meta) (map :res))
+                (partial merge-with +) vs))))
 
 (map (partial parse-for-result STATES count-pairs)
-     (map #(apply str (repeat % "()")) (range 11)))
+     (map #(clojure.string/join (repeat % "()")) (range 11)))
 ;; (nil {\( 1, \) 1} {\( 2, \) 2} {\( 3, \) 3} {\( 4, \) 4}
 ;;      {\( 5, \) 5} {\( 6, \) 6} {\( 7, \) 7}
 ;;      {\( 8, \) 8} {\( 9, \) 9} {\( 10, \) 10})
 (map (partial parse-for-result STATES' count-pairs)
-     (map #(apply str (repeat % "()")) (range 11)))
+     (map #(clojure.string/join (repeat % "()")) (range 11)))
 
 
 
