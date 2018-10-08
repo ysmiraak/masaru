@@ -1,0 +1,38 @@
+* masaru
+
+a clojure library for the tomita glr parsing algorithm.
+
+** usage
+
+*** main functions
+
+in =masaru.core=:
+
+- =consume=
+- =parse=
+- =parse-for-result=
+- =parsable?=
+- =parse-forest-as-sexp=
+- =number-of-parses=
+
+see doc strings for usage details.
+
+*** usage examples
+
+in =masaru.trial=:
+
+- =nvnpn=
+- =pars=
+- =111=
+
+*** todo
+
+- automate cf grammar to slr table conversion.
+- test efficiency and change to parallel process.
+- function for drawing parse forest in the dot language.
+
+* license
+
+copyright © 2016 ysmiraak
+
+distributed under the eclipse public license either version 1.0 or (at your option) any later version.
